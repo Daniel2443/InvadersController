@@ -1,25 +1,22 @@
 package invaders.daniel.com.invaderscontroller;
 
-import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.StrictMode;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.hardware.*;
 import android.util.Log;
-import android.view.Window;
+import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.TranslateAnimation;
 import android.widget.*;
-
+import android.view.View.OnClickListener;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener{
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private TextView xText, yText, zText;
     private Sensor mySensor;
@@ -31,6 +28,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private EditText textField;
     private Button button;
     private String messsage;
+    private String ip = "172.26.47.192";
+    int cont = 0;
 
 
     @Override
@@ -38,7 +37,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitNetwork().build());
+        button = findViewById(R.id.button);
 
+        button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                buttonClicked();
+            }
+        });
 
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -47,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         Log.d(TAG, "onCreate: Iinitializing Sensor");
         //Create Sensor
-        SM = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+        SM = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         //Acelerometer
         mySensor = SM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
@@ -56,70 +62,74 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Log.d(TAG, "onCreate: Registered Acelerometer");
 
 
-
-
     }
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        ImageView imageView = (ImageView)findViewById(R.id.imageView);
-
+        ImageView imageView = (ImageView) findViewById(R.id.imageView);
 
 
         float y = sensorEvent.values[1];
-        if(y < -3){
-            System.out.println("Izquierda ");
+        if (y < -1.5) {
+            cont = 0;
             imageView.setImageResource(R.drawable.ship_left);
             try {
-                while(true) {
-                    client = new Socket("172.26.47.192", 44444);  //connect to server
-                    printwriter = new PrintWriter(new OutputStreamWriter(client.getOutputStream()), true);
-
-                    //printwriter.flush();
-
-                    //printwriter.close();
-                    client.close();   //closing the connection
-                }
+                client = new Socket(ip, 44444);  //connect to server
+                printwriter = new PrintWriter(new OutputStreamWriter(client.getOutputStream()), true);
+                printwriter.println("I");
+                client.close();   //closing the connection
             } catch (Exception e) {
-                e.printStackTrace();}
-        }
-        else if (y >3){
+                e.printStackTrace();
+            }
+        } else if (y > 1.5) {
+            cont = 0;
             getWindow().getDecorView().setBackgroundColor(Color.BLUE);
-            System.out.println("Derecha ");
             imageView.setImageResource(R.drawable.ship_right);
             try {
-                while(true) {
-                    client = new Socket("172.26.47.192", 44444);  //connect to server
-                    printwriter = new PrintWriter(new OutputStreamWriter(client.getOutputStream()), true);
-                    //printwriter.flush();
-
-                    //printwriter.close();
-                    client.close();   //closing the connection
-                }
+                client = new Socket(ip, 44444);  //connect to server
+                printwriter = new PrintWriter(new OutputStreamWriter(client.getOutputStream()), true);
+                printwriter.println("D");
+                client.close();   //closing the connection
             } catch (Exception e) {
-                e.printStackTrace();}
-        }
-        else if (-1 < y || y < 1) {
-            System.out.println("Estable ");
+                e.printStackTrace();
+            }
+        } else {
             imageView.setImageResource(R.drawable.ship);
-            try {
-                while(true) {
-                    client = new Socket("172.26.47.192", 44444);  //connect to server
-                    printwriter = new PrintWriter(new OutputStreamWriter(client.getOutputStream()), true);
-                    //printwriter.flush();
 
-                    //printwriter.close();
+            if (cont == 0) {
+                try {
+                    client = new Socket(ip, 44444);  //connect to server
+                    printwriter = new PrintWriter(new OutputStreamWriter(client.getOutputStream()), true);
+                    printwriter.println("E");
                     client.close();   //closing the connection
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();}
+                cont++;
+            }
         }
 
 
     }
+    private void buttonClicked(){
+        System.out.println("Me tocarón bebé");
+        try {
+            client = new Socket(ip, 44444);  //connect to server
+            printwriter = new PrintWriter(new OutputStreamWriter(client.getOutputStream()), true);
+            printwriter.println("F");
+            client.close();   //closing the connection
 
-    @Override
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+        @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
+
 }
