@@ -28,8 +28,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private EditText textField;
     private Button button;
     private String messsage;
-    private String ip = "172.26.47.192";
-    int cont = 0;
+    private String ip = "172.26.43.237";
+    int cont = 1;
 
 
     @Override
